@@ -107,7 +107,21 @@ case "${1:-}" in
     fi
 
     echo "Running tests..."
-    npm ci
+    # Check which package manager to use based on lock files
+    if [ -f "pnpm-lock.yaml" ]; then
+      echo "Using pnpm to install dependencies..."
+      pnpm install
+    elif [ -f "package-lock.json" ]; then
+      echo "Using npm to install dependencies..."
+      npm ci
+    elif [ -f "yarn.lock" ]; then
+      echo "Using yarn to install dependencies..."
+      yarn install --frozen-lockfile
+    else
+      echo "Using npm to install dependencies (no lock file found)..."
+      npm install
+    fi
+    
     npx ava
 
     echo "Pushing '$branch' to origin..."
